@@ -1,4 +1,5 @@
-const { Logger } = require("winston");
+const AppError = require("../utils/errors/AppError");
+const { StatusCodes } = require("http-status-codes");
 
 class CrudRepository {
     constructor(model) {
@@ -11,53 +12,44 @@ class CrudRepository {
     }
 
     async destroy(data) {
-        try {
-            const response = await this.model.destroy({
-                where: {
-                    id: data
-                }
-            });
-            return response;
-        } catch (error) {
-            Logger.error('Something went wrong in the Crud Repository: destroy');
-            throw error;
+        const response = await this.model.destroy({
+            where: {
+                id: data
+            }
+        });
+        if (!response) {
+            throw new AppError([`Could not find the resource with id: ${data}`], StatusCodes.NOT_FOUND);
         }
+        return response;
     }
 
     async get(data) {
-        try {
-            const response = await this.model.findByPk(data);
-            return response;
-        } catch (error) {
-            Logger.error('Something went wrong in the Crud Repository: get');
-            throw error;
+        const response = await this.model.findByPk(data);
+        if (!response) {
+            throw new AppError([`Could not find the resource with id: ${data}`], StatusCodes.NOT_FOUND);
         }
+        return response;
     }
 
     async getAll() {
-        try {
-            const response = await this.model.findAll();
-            return response;
-        } catch (error) {
-            Logger.error('Something went wrong in the Crud Repository: getAll');
-            throw error;
-        }
+        const response = await this.model.findAll();
+        return response;
     }
 
     async update(id, data) {
-        try {
-            const response = await this.model.update(data, {
-                where: {
-                    id: id
-                }
-            });
-            return response;
-        } catch (error) {
-            Logger.error('Something went wrong in the Crud Repository: update');
-            throw error;
+        const response = await this.model.update(data, {
+            where: {
+                id: id
+            }
+        });
+
+        if(response[0] == 0) {
+            throw new AppError([`Could not find the resource with id: ${data}`], StatusCodes.NOT_FOUND);
         }
+
+        return response;
     }
-    
+
 }
 
 module.exports = CrudRepository;
