@@ -69,7 +69,7 @@ async function updateAirplane(id, data) {
         const airplane = await airplaneRepository.update(id, data);
         return airplane;
     } catch (error) {        
-        if(error.name == 'SequelizeValidationError') {
+        if(error.name == 'SequelizeValidationError' || error.name == 'SequelizeUniqueConstraintError') {
             const details = [];
             error.errors.forEach((err) => {
                 details.push(err.message);
