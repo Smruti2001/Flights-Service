@@ -52,7 +52,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      ArrivalTime: {
+      arrivalTime: {
         type: Sequelize.DATE,
         allowNull: false
       },
