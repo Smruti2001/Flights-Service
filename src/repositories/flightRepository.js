@@ -2,6 +2,7 @@ const { Sequelize } = require('sequelize');
 
 const CrudRepository = require("./crudRepository");
 const { Flight, Airplane, Airport, City } = require('../models');
+const db = require('../models');
 
 class FlightRepository extends CrudRepository {
     constructor() {
@@ -48,13 +49,21 @@ class FlightRepository extends CrudRepository {
     }
 
     async updateRemainingSeats(flightId, seats, dec = 1) {
-        const flight = await Flight.findByPk(flightId);
-        if(parseInt(dec)) { // Send dec value as 0 if you want increment as 0 is a falsy value
-            await flight.decrement('totalSeats', { by: seats });
-        } else {
-            await flight.increment('totalSeats', { by: seats });
+        const transaction = await db.sequelize.transaction();
+        try {
+            // TODO - Add the row lock to avoid the race condition
+            const flight = await Flight.findByPk(flightId);
+            if (parseInt(dec)) { // Send dec value as 0 if you want increment as 0 is a falsy value
+                await flight.decrement('totalSeats', { by: seats }, { transaction: transaction });
+            } else {
+                await flight.increment('totalSeats', { by: seats }, { transaction: transaction });
+            }
+            await transaction.commit();
+            return flight;
+        } catch (error) {
+            await transaction.rollback();
+            return error;
         }
-        return flight;
     }
 }
 
