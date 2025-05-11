@@ -55,8 +55,27 @@ async function getFlight(req, res) {
     }
 }
 
+async function updateRemainingSeats(req, res) {
+    try {
+        const flight = await FlightService.updateRemainingSeats({
+            flightId: req.params.id,
+            seats: req.body.seats,
+            dec: req.body.dec
+        });
+
+        SuccessResponse.message = 'Successfully fetched the flight data';
+        SuccessResponse.data = flight;
+
+        return res.status(StatusCodes.OK).json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = error;
+        return res.status(error.statusCode).json(ErrorResponse);
+    }
+}
+
 module.exports = {
     createFlight,
     getAllFlights,
-    getFlight
+    getFlight,
+    updateRemainingSeats
 }
