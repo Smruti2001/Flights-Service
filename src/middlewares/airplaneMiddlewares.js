@@ -1,7 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 
 const { ErrorResponse } = require("../utils/common");
-const AppError = require("../utils/errors/AppError");
+const AppError = require("../utils/errors/appError");
 
 function validateCreateRequest(req, res, next) {
     if (!req.body.modelNumber) {
